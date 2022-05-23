@@ -15,7 +15,7 @@ object DatabaseService {
       "org.postgresql.Driver",
       "jdbc:postgresql:manifolds_atlas",
       "postgres",
-      "ominiu123"
+      ""
     )
 
   def make[F[_]: Async]: F[DatabaseService[F]] =
