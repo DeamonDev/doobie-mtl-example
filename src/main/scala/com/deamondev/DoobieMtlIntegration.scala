@@ -27,7 +27,7 @@ object DoobieMtlIntegration extends IOApp.Simple {
       mfldE <- ManifoldsAtlas[IO](transactorR).create(
         "double point",
         "x^2=0",
-        0
+        1
       )
       _ <- mfldE match {
         case Left(e) =>
@@ -49,7 +49,7 @@ object DoobieMtlIntegration extends IOApp.Simple {
       dbService <- DatabaseService.make[F]
       transactorR <- dbService.getTransactorResource
       mfld <- ManifoldsAtlasMTL[F](transactorR)
-        .create("triple point", "x^3=0", 0)
+        .create("triple point", "x^3=0", 1)
         .handleWith[ManifoldError] { case e @ ManifoldAlreadyExists(name) =>
           Sync[F].delay(println(s"Manifold $name already exists.")) *> Manifold(
             0,
