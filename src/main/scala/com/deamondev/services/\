@@ -1,0 +1,65 @@
+package com.deamondev.services
+
+import cats.effect.kernel.Async
+import cats.implicits._
+import doobie._
+import doobie.implicits._
+import doobie.postgres._
+
+case class Manifold(id: Int, name: String, equation: String, eulerChar: Int)
+
+object Errors {
+  sealed trait ManifoldError
+  final case class ManifoldAlreadyExists(name: String) extends ManifoldError
+}
+
+case class ManifoldsAtlas[F[_], +E <: Errors.ManifoldError](
+    transactor: Transactor[F]
+)(implicit F: Async[F]) {
+  import ManifoldsAtlasSql._
+
+  def create(
+      name: String,
+      equation: String,
+      eulerChar: Int
+  ): F[Either[E, Manifold]] =
+    createQuery(name, equation, eulerChar)
+      .attemptSomeSqlState { case sqlstate.class23.UNIQUE_VIOLATION =>
+        Errors.ManifoldAlreadyExists(name)
+      }.transact(transactor)
+}
+
+/*object ManifoldsAtlas {
+  import ManifoldsAtlasSql._
+
+  object Errors {
+    sealed trait ManifoldError
+    final case class ManifoldAlreadyExists(name: String) extends ManifoldError
+  }
+
+  def make[F[_], E](
+      transactor: Transactor[F]
+  )(implicit F: Async[F]): F[ManifoldsAtlas[F, E]] =
+    new ManifoldsAtlas[F, E](transactor) {
+      override def create(
+          name: String,
+          equation: String,
+          eulerChar: Int
+      ): F[Either[E, Manifold]] = createQuery(name, equation, eulerChar)
+        .attemptSomeSqlState { case sqlstate.class23.UNIQUE_VIOLATION =>
+          Errors.ManifoldAlreadyExists(name)
+        }
+        .transact(transactor)
+    }.pure[F]
+}*/
+
+object ManifoldsAtlasSql {
+  def createQuery(
+      name: String,
+      equation: String,
+      eulerChar: Int
+  ): ConnectionIO[Manifold] =
+    sql"INSERT INTO algebraic_varieties (id, name, equation, euler_char) VALUES ($name, $equation, $eulerChar)".update
+      .withUniqueGeneratedKeys("id", "name", "equation", "euler_char")
+
+}
