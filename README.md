@@ -1,7 +1,7 @@
 # Doobie-MTL
 
 In this application I show how to manage (functional) error handling in the context of Doobie. We have database
-`manifolds` with table `algebraic_varieties`. Each variety has its id, name, equation describing it and its euler characteristics. 
+`manifolds_atlas` with table `algebraic_varieties`. Each variety has its id, name, equation describing it and its euler characteristics. 
 If you are not familiar with algebraic topology / geometry you can think about it as an abstract nonsense ;) 
 
 ## Prepare database (under postgres user)
